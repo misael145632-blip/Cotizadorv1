@@ -68,6 +68,20 @@ input[type=text]:focus,input[type=number]:focus{border-color:#00b0f0}
 .empty{text-align:center;color:#bbb;padding:28px 0;font-size:13px}
 .empty span{font-size:36px;display:block;margin-bottom:8px}
 .no-dev{text-align:center;color:#bbb;padding:14px 0;font-size:13px}
+
+/* portabilidad */
+.port-toggle{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:2px solid #e0e0e0;cursor:pointer;background:#fafafa;transition:all .2s;margin-bottom:0}
+.port-toggle.on{border-color:#2e7d32;background:#e8f5e9}
+.port-toggle input{display:none}
+.port-switch{width:42px;height:24px;border-radius:12px;background:#ccc;position:relative;transition:background .2s;flex-shrink:0}
+.port-switch::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:9px;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.port-toggle.on .port-switch{background:#2e7d32}
+.port-toggle.on .port-switch::after{left:21px}
+.port-label{font-weight:700;font-size:13px;color:#555}
+.port-toggle.on .port-label{color:#2e7d32}
+.port-desc{font-size:11px;color:#888;margin-top:1px}
+.port-toggle.on .port-desc{color:#4caf50}
+
 </style>
 </head>
 <body>
@@ -79,6 +93,16 @@ input[type=text]:focus,input[type=number]:focus{border-color:#00b0f0}
   <div class="card">
     <div class="card-title">👤 Nombre del Cliente</div>
     <input type="text" id="clientName" placeholder="Ej. Juan Pérez"/>
+  </div>
+  <div class="card" style="padding:12px 14px">
+    <div class="card-title" style="margin-bottom:8px">📋 Tipo de Activación</div>
+    <div class="port-toggle" id="portToggle" onclick="togglePortabilidad()">
+      <div class="port-switch"></div>
+      <div>
+        <div class="port-label" id="portLabel">Portabilidad</div>
+        <div class="port-desc" id="portDesc">Toca para activar — aplica 20% descuento en el plan</div>
+      </div>
+    </div>
   </div>
   <div class="tabs">
     <button class="tab-btn active" onclick="setTab('premium',this)">🏆 Premium</button>
@@ -134,7 +158,7 @@ const SIMPLE_DEVICES=[{"marca": "APPLE", "equipo": "Apple iPhone SE 64GB 3ra", "
 const PREPAGO_DEVICES=[{"marca": "APPLE", "equipo": "APPLE IPHONE 17 AIR 256GB 5G", "precio_lista": 25999.0, "precio_promo": 23799.0}, {"marca": "APPLE", "equipo": "APPLE IPHONE 17 AIR 512GB 5G", "precio_lista": 30999.0, "precio_promo": 28799.0}, {"marca": "GOOGLE", "equipo": "GOOGLE PIXEL 10 128GB 5G", "precio_lista": 19999.0, "precio_promo": 15999.0}, {"marca": "GOOGLE", "equipo": "GOOGLE PIXEL 10 256GB 5G", "precio_lista": 22499.0, "precio_promo": 17999.0}, {"marca": "GOOGLE", "equipo": "GOOGLE PIXEL 10 PRO 256GB 5G", "precio_lista": 28499.0, "precio_promo": 22799.0}, {"marca": "GOOGLE", "equipo": "GOOGLE PIXEL 10 PRO 512GB 5G", "precio_lista": 31499.0, "precio_promo": 25199.0}, {"marca": "GOOGLE", "equipo": "GOOGLE PIXEL 10 PRO XL 256GB 5G", "precio_lista": 30999.0, "precio_promo": 24799.0}, {"marca": "GOOGLE", "equipo": "GOOGLE PIXEL 10 PRO XL 512GB 5G", "precio_lista": 33999.0, "precio_promo": 27199.0}, {"marca": "GOOGLE", "equipo": "GOOGLE PIXEL 9A 128GB 5G", "precio_lista": 11999.0, "precio_promo": 8999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A06 64GB 4G", "precio_lista": 2599.0, "precio_promo": 1849.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A07", "precio_lista": 2499.0, "precio_promo": 1999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A07 64GB 4G", "precio_lista": 2499.0, "precio_promo": 1999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A16 128GB 4G", "precio_lista": 4299.0, "precio_promo": 2999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A17 128GB 4G", "precio_lista": 3999.0, "precio_promo": 2999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A17 4G", "precio_lista": 3999.0, "precio_promo": 3199.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A26 128GB 5G", "precio_lista": 5999.0, "precio_promo": 4999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A35 128GB 5G", "precio_lista": 6999.0, "precio_promo": 4999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A36 128GB 5G", "precio_lista": 7499.0, "precio_promo": 5999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A55 128GB 5G", "precio_lista": 8999.0, "precio_promo": 6999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY A56 256GB 5G", "precio_lista": 10999.0, "precio_promo": 8999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S24 FE 256GB 5G", "precio_lista": 15499.0, "precio_promo": 11499.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S24 PLUS 256GB 5G", "precio_lista": 23999.0, "precio_promo": 15999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S24 ULTRA 256GB 5G", "precio_lista": 30999.0, "precio_promo": 23999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S25 256GB 5G", "precio_lista": 21499.0, "precio_promo": 17999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S25 EDGE ", "precio_lista": 28499.0, "precio_promo": 22999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S25 EDGE 256GB 5G", "precio_lista": 28499.0, "precio_promo": 22999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S25 PLUS 512GB 5G", "precio_lista": 28999.0, "precio_promo": 22999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S25 ULTRA 256GB 5G", "precio_lista": 32999.0, "precio_promo": 29999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY S25 ULTRA 512GB 5G", "precio_lista": 35999.0, "precio_promo": 32999.0}, {"marca": "SAMSUNG", "equipo": "SAMSUNG GALAXY Z FLIP6 512GB 5G", "precio_lista": 27999.0, "precio_promo": 19999.0}];
 const TITANIO_DEVICES=[{"marca": "APPLE", "equipo": "Apple iPhone 17 256GB", "precio_contado": 19999.0, "mensualidad_equipo": 0.0}, {"marca": "APPLE", "equipo": "Apple iPhone Air 256GB", "precio_contado": 25999.0, "mensualidad_equipo": 5976.0}, {"marca": "APPLE", "equipo": "Apple iPhone 17 Pro 256GB", "precio_contado": 28499.0, "mensualidad_equipo": 7176.0}, {"marca": "APPLE", "equipo": "Apple iPhone 17 Pro Max 256GB", "precio_contado": 30999.0, "mensualidad_equipo": 9576.0}];
 
-let tab='premium', plan=null, plazo='24m', device=null, quotes=[];
+let tab='premium', plan=null, plazo='24m', device=null, quotes=[], portabilidad=false;
 let enganchePct=0; // porcentaje de enganche actual en el formulario
 
 const fmt=n=>n?'$'+Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
@@ -150,6 +174,24 @@ function setTab(t,btn){
   btn.classList.add('active');
   document.getElementById('searchInput').value='';
   renderAll();
+}
+
+
+function togglePortabilidad(){
+  portabilidad=!portabilidad;
+  const tog=document.getElementById('portToggle');
+  const lbl=document.getElementById('portLabel');
+  const desc=document.getElementById('portDesc');
+  if(portabilidad){
+    tog.classList.add('on');
+    lbl.textContent='Portabilidad ✓';
+    desc.textContent='20% de descuento aplicado al plan';
+  } else {
+    tog.classList.remove('on');
+    lbl.textContent='Portabilidad';
+    desc.textContent='Toca para activar — aplica 20% descuento en el plan';
+  }
+  renderSummary();
 }
 
 function renderAll(){renderPlanSection();renderDevices();renderSummary();}
@@ -229,6 +271,10 @@ function onPctInput(){
   renderSummary();
 }
 
+function getPlanMensualidad(monthly){
+  return portabilidad ? Math.round(monthly*0.8*100)/100 : monthly;
+}
+
 function renderSummary(){
   const content=document.getElementById('summaryContent');
   const btn=document.getElementById('btnAdd');
@@ -252,7 +298,8 @@ function renderSummary(){
       <div class="s-row"><span class="s-label" style="color:#00897b;font-weight:700">Precio promo</span><span style="font-weight:900;color:#00897b;font-size:18px">${fmtI(device.precio_promo)}</span></div>
       <div style="font-size:11px;color:#888;margin-top:4px">Sin plan mensual · Pago de contado</div></div>`;
   } else if(tab==='titanio'){
-    const mp=1599;
+    const mp=getPlanMensualidad(1599);
+    const mpTitanio=getPlanMensualidad(1599);
     const costoEquipo=device.mensualidad_equipo*24||0; // costo total financiado del equipo en titanio
     const engancheAmt=Math.round(costoEquipo*(enganchePct/100)*100)/100;
     const saldoFinanciar=costoEquipo-engancheAmt;
@@ -262,7 +309,7 @@ function renderSummary(){
   } else if(tab==='simple'){
     const ct=device.planes?.[plan.name]?.[plazo]||0;
     const meses=parseInt(plazo);
-    const mp=plan.monthly;
+    const mp=getPlanMensualidad(plan.monthly);
     // Costo total financiado del equipo = costo total contrato - (plan * meses)
     const costoEquipo=ct-(mp*meses);
     const engancheAmt=Math.round(costoEquipo*(enganchePct/100)*100)/100;
@@ -270,7 +317,7 @@ function renderSummary(){
     const me=Math.round((saldoFinanciar/meses)*100)/100;
     html+=`<div class="summary-box" style="background:#f5f8ff">
       <span class="badge" style="background:${PLAN_COLORS[plan.name]||'#1589f0'}">${plan.name}</span>
-      <div class="s-row"><span class="s-label">Mensualidad plan</span><span class="s-val">${fmtI(mp)}/mes</span></div>
+      <div class="s-row"><span class="s-label">Mensualidad plan${portabilidad?' <span style="font-size:10px;background:#e8f5e9;color:#2e7d32;border-radius:4px;padding:1px 5px;font-weight:700">-20% Portabilidad</span>':''}</span><span class="s-val">${fmtI(mp)}/mes</span></div>
       <div class="s-row"><span class="s-label">Mensualidad equipo (${plazo.replace('m',' meses')})</span><span style="font-weight:700;color:#c8a000">${fmt(me)}</span></div>
       <div style="height:1px;background:#d0d7df;margin:8px 0"></div>
       <div class="s-row"><span class="s-label" style="color:#0067c5;font-weight:700">Total mensual</span><span style="font-weight:900;color:#0067c5;font-size:15px">${fmt(mp+me)}</span></div>
@@ -285,7 +332,7 @@ function renderSummary(){
     const engancheAmt=Math.round(costoEquipo*(enganchePct/100)*100)/100;
     const saldoFinanciar=costoEquipo-engancheAmt;
     const me=Math.round((saldoFinanciar/meses)*100)/100;
-    const mp=plan.monthly;
+    const mp=getPlanMensualidad(plan.monthly);
     const total=mp+me;
     html+=buildSummaryBox({planName:plan.name,gb:plan.gb,mp,me,total,plazoLabel:plazo.replace('m',' meses'),costoFinanciado:costoEquipo,engancheAmt,enganchePct,showEnganche:true,meses});
   }
@@ -297,7 +344,7 @@ function buildSummaryBox({planName,gb,mp,me,total,plazoLabel,costoFinanciado,eng
   const c=PLAN_COLORS[planName]||'#1589f0';
   let html=`<div class="summary-box" style="background:#f5f8ff">
     <span class="badge" style="background:${c}">${planName}${gb?' · '+gb:''}</span>
-    <div class="s-row"><span class="s-label">Mensualidad plan</span><span class="s-val">${fmtI(mp)}/mes</span></div>
+    <div class="s-row"><span class="s-label">Mensualidad plan${portabilidad?' <span style="font-size:10px;background:#e8f5e9;color:#2e7d32;border-radius:4px;padding:1px 5px;font-weight:700">-20% Portabilidad</span>':''}</span><span class="s-val">${fmtI(mp)}/mes</span></div>
     <div class="s-row"><span class="s-label">Mensualidad equipo (${plazoLabel})</span><span style="font-weight:700;color:#c8a000">${fmt(me)}</span></div>
     <div style="height:1px;background:#d0d7df;margin:8px 0"></div>
     <div class="s-row"><span class="s-label" style="color:#0067c5;font-weight:700">Total mensual</span><span style="font-weight:900;color:#0067c5;font-size:15px">${fmt(total)}</span></div>
@@ -315,6 +362,8 @@ function buildEngancheSection(costoFinanciado,engancheAmt,enganchePct,meses){
       <button class="pct-btn ${enganchePct===10?'sel':''}" onclick="setPct(10)">10%</button>
       <button class="pct-btn ${enganchePct===20?'sel':''}" onclick="setPct(20)">20%</button>
       <button class="pct-btn ${enganchePct===30?'sel':''}" onclick="setPct(30)">30%</button>
+      <button class="pct-btn ${enganchePct===40?'sel':''}" onclick="setPct(40)">40%</button>
+      <button class="pct-btn ${enganchePct===50?'sel':''}" onclick="setPct(50)">50%</button>
       <button class="pct-btn ${enganchePct===0?'sel':''}" onclick="setPct(0)">Sin enganche</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
@@ -343,16 +392,16 @@ function addQuote(){
     const engancheAmt=Math.round(costoEquipo*(enganchePct/100)*100)/100;
     const saldo=costoEquipo-engancheAmt;
     const me=costoEquipo>0 ? Math.round((saldo/24)*100)/100 : 0;
-    q={...q,tipo:'titanio',planName:'Titanio',precio_contado:pc,costoFinanciado:costoEquipo,engancheAmt,mensualidadEquipo:me,mensualidadPlan:1599,totalMensual:1599+me,plazo:'24 meses'};
+    q={...q,tipo:'titanio',planName:'Titanio',precio_contado:pc,costoFinanciado:costoEquipo,engancheAmt,mensualidadEquipo:me,mensualidadPlan:mpTitanio,totalMensual:mpTitanio+me,plazo:'24 meses',portabilidad};
   } else if(tab==='simple'){
     const ct=device.planes?.[plan.name]?.[plazo]||0;
     const meses=parseInt(plazo);
-    const mp=plan.monthly;
+    const mp=getPlanMensualidad(plan.monthly);
     const costoEquipo=ct-(mp*meses);
     const engancheAmt=Math.round(costoEquipo*(enganchePct/100)*100)/100;
     const saldo=costoEquipo-engancheAmt;
     const me=Math.round((saldo/meses)*100)/100;
-    q={...q,tipo:'simple',planName:plan.name,mensualidadPlan:mp,mensualidadEquipo:me,totalMensual:mp+me,costoTotal:ct,costoFinanciado:costoEquipo,engancheAmt,plazo:plazo.replace('m',' meses'),precio_contado:pc};
+    q={...q,tipo:'simple',planName:plan.name,mensualidadPlan:mp,mensualidadEquipo:me,totalMensual:mp+me,costoTotal:ct,costoFinanciado:costoEquipo,engancheAmt,plazo:plazo.replace('m',' meses'),precio_contado:pc,portabilidad};
   } else {
     // premium: valor de BD = costo total financiado del equipo
     const meses=parseInt(plazo);
@@ -360,8 +409,8 @@ function addQuote(){
     const engancheAmt=Math.round(costoEquipo*(enganchePct/100)*100)/100;
     const saldo=costoEquipo-engancheAmt;
     const me=Math.round((saldo/meses)*100)/100;
-    const mp=plan.monthly;
-    q={...q,tipo:'premium',planName:plan.name,gb:plan.gb,mensualidadPlan:mp,mensualidadEquipo:me,totalMensual:mp+me,costoFinanciado:costoEquipo,engancheAmt,plazo:plazo.replace('m',' meses'),precio_contado:pc};
+    const mp=getPlanMensualidad(plan.monthly);
+    q={...q,tipo:'premium',planName:plan.name,gb:plan.gb,mensualidadPlan:mp,mensualidadEquipo:me,totalMensual:mp+me,costoFinanciado:costoEquipo,engancheAmt,plazo:plazo.replace('m',' meses'),precio_contado:pc,portabilidad};
   }
   quotes.push(q);
   device=null;enganchePct=0;
@@ -404,11 +453,7 @@ function renderQuotes(){
           <span class="q-total-label q-grand">💳 Total mensual</span>
           <span class="q-total-val q-grand">${fmt(q.totalMensual)}/mes</span>
         </div>
-        ${q.tipo==='simple'?`<div class="q-total-row" style="margin-top:4px"><span class="q-total-label" style="font-size:11px;color:#888">Costo total contrato</span><span style="font-size:11px;color:#888">${fmt(q.costoTotal)}</span></div>`:''}
-        <div class="q-total-row" style="margin-top:4px">
-          <span class="q-total-label" style="font-size:11px;color:#888">Precio contado</span>
-          <span style="font-size:11px;color:#888">${fmtI(q.precio_contado)}</span>
-        </div>
+
       </div>`;
 
       if(q.enganchePct>0){
@@ -423,7 +468,7 @@ function renderQuotes(){
       <button class="q-remove" onclick="removeQuote(${i})">×</button>
       <div class="q-header">
         <span style="font-size:22px">${ICONS[q.marca]||'📱'}</span>
-        <div><div class="q-name">${q.equipo}</div><span class="badge" style="background:${c}">${q.planName}</span></div>
+        <div><div class="q-name">${q.equipo}</div><span class="badge" style="background:${c}">${q.planName}</span>${q.portabilidad?' <span style="background:#2e7d32;color:#fff;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700">PORTABILIDAD -20%</span>':''}</div>
       </div>
       ${body}
     </div>`;
